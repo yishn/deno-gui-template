@@ -1,0 +1,22 @@
+{
+  "name": "deno-gui-template",
+  "productName": "Deno GUI Template",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "deno fmt",
+    "build": "deno bundle --no-check ./frontend/AppWindow.ts ./build/AppWindow.js",
+    "start": "deno run -A --unstable --no-check ./backend/main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yishn/deno-gui-template.git"
+  },
+  "author": "Yichuan Shen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yishn/deno-gui-template/issues"
+  },
+  "homepage": "https://github.com/yishn/deno-gui-template#readme"
+}
