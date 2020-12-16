@@ -17,7 +17,19 @@ export interface RawResponseMessage<
   K extends keyof A,
 > {
   id: number;
-  response: ReturnType<A[K]> extends Promise<infer T> ? T : never;
+  response: (ReturnType<A[K]> extends Promise<infer T> ? T : never) | undefined;
+  error?: {
+    message: string;
+    stack?: string;
+  };
+}
+
+export class RemoteActionError extends Error {
+  constructor(message: string, public remoteStack?: string) {
+    super(message);
+
+    this.name = "RemoteActionError";
+  }
 }
 
 export class Actions<
@@ -45,14 +57,25 @@ export class Actions<
       let callback = this.responseQueue[message.id];
       if (callback != null) callback(message);
     } else {
-      let response = await this.localActions[message.key](
-        ...message.args,
-      ) as RawResponseMessage<L, K>["response"];
+      try {
+        let response = await this.localActions[message.key](
+          ...message.args,
+        ) as RawResponseMessage<L, K>["response"];
 
-      this.sendMessage({
-        id: message.id,
-        response,
-      });
+        this.sendMessage({
+          id: message.id,
+          response,
+        });
+      } catch (err) {
+        this.sendMessage({
+          id: message.id,
+          response: undefined,
+          error: {
+            message: err.message,
+            stack: err.stack,
+          },
+        });
+      }
     }
   }
 
@@ -79,6 +102,13 @@ export class Actions<
         });
       },
     );
+
+    if (responseMessage.error != null) {
+      throw new RemoteActionError(
+        responseMessage.error.message,
+        responseMessage.error.stack,
+      );
+    }
 
     return responseMessage.response;
   }
