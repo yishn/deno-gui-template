@@ -44,10 +44,12 @@ export class Actions<
 
   constructor(
     public localActions: L,
-    protected sendData: (data: string) => void,
+    sendData: (data: string) => void,
   ) {
     this.id = 0;
     this.responseQueue = {};
+
+    this.sendMessage = (message) => sendData(JSON.stringify(message));
   }
 
   async receiveMessage<K extends keyof L, J extends keyof R>(
@@ -81,9 +83,7 @@ export class Actions<
 
   protected sendMessage<K extends keyof L, J extends keyof R>(
     message: RawActionMessage<R, J> | RawResponseMessage<L, K>,
-  ): void {
-    this.sendData(JSON.stringify(message));
-  }
+  ): void {}
 
   async doRemoteAction<J extends keyof R>(
     key: J,

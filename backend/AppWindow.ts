@@ -1,4 +1,3 @@
-import { Actions } from "../shared/Actions.ts";
 import {
   AppWindowBackendActions,
   AppWindowFrontendActions,
@@ -11,20 +10,9 @@ export class AppWindow
   constructor() {
     super(
       new URL("../build/AppWindow.js", import.meta.url),
-      new Actions(
-        {
-          getProductName: async () => {
-            return pkg.productName;
-          },
-
-          setWindowTitle: async (title: string) => {
-            this.title = title;
-          },
-        },
-        (data) => {
-          this.webview.eval(`window.__actions.receiveMessage(${data});`);
-        },
-      ),
+      {
+        getProductName: async () => pkg.productName,
+      },
       {
         title: pkg.productName,
       },

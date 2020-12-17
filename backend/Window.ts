@@ -3,50 +3,70 @@ import {
   WebviewParams,
 } from "https://deno.land/x/webview@0.5.5/mod.ts";
 import { Actions, ActionsTemplate } from "../shared/Actions.ts";
+import { objEntries } from "../shared/utils.ts";
+import type {
+  WindowBackendActions,
+  WindowFrontendActions,
+} from "../shared/WindowActions.ts";
 
 export type WindowOptions = Omit<WebviewParams, "url">;
 
-export class Window<L extends ActionsTemplate, R extends ActionsTemplate> {
-  private _title: string;
-  private _visible: boolean;
-  private _fullScreen: boolean;
+export interface WindowState {
+  title: string;
+  visible: boolean;
+  fullScreen: boolean;
+}
+
+export class Window<
+  L extends ActionsTemplate,
+  R extends ActionsTemplate,
+> {
+  private actions: Actions<L & WindowBackendActions, R & WindowFrontendActions>;
   webview: Webview;
+  state: Readonly<WindowState> = {
+    title: "",
+    visible: false,
+    fullScreen: false,
+  };
 
-  get title(): string {
-    return this._title;
-  }
+  setState(state: Partial<WindowState>) {
+    this.state = { ...this.state, ...state };
 
-  set title(value: string) {
-    this._title = value;
-    this.webview.setTitle(value);
-  }
+    for (let keyValuePair of objEntries(state)) {
+      if (keyValuePair[1] === undefined) continue;
 
-  get visible(): boolean {
-    return this._visible;
-  }
-
-  set visible(value: boolean) {
-    this._visible = value;
-    this.webview.setVisible(value);
-  }
-
-  get fullScreen(): boolean {
-    return this._fullScreen;
-  }
-
-  set fullScreen(value: boolean) {
-    this._fullScreen = value;
-    this.webview.setFullscreen(value);
+      if (keyValuePair[0] === "title") {
+        this.webview.setTitle(keyValuePair[1]);
+      } else if (keyValuePair[0] === "visible") {
+        this.webview.setVisible(keyValuePair[1]);
+      } else if (keyValuePair[0] === "fullScreen") {
+        this.webview.setFullscreen(keyValuePair[1]);
+      }
+    }
   }
 
   constructor(
     scriptUrl: URL,
-    private actions: Actions<L, R>,
+    localActions: L,
     options: Partial<WindowOptions>,
   ) {
-    this._title = options.title ?? "";
-    this._visible = options.visible ?? false;
-    this._fullScreen = false;
+    this.actions = new Actions(
+      {
+        ...localActions,
+        setState: async (state: Partial<WindowState>) => {
+          this.setState(state);
+        },
+      },
+      (data) => {
+        this.webview.eval(`window.__actions.receiveMessage(${data});`);
+      },
+    );
+
+    this.state = {
+      title: options.title ?? "",
+      visible: options.visible ?? false,
+      fullScreen: false,
+    };
 
     let script = Deno.readTextFileSync(scriptUrl);
     let html = (mockExternal: boolean) =>
@@ -56,6 +76,7 @@ export class Window<L extends ActionsTemplate, R extends ActionsTemplate> {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body>
+      <div id="root"></div>
       <script type="text/javascript">
 
       (function() {
@@ -66,7 +87,7 @@ export class Window<L extends ActionsTemplate, R extends ActionsTemplate> {
           }
         };`
       }
-      ${script}
+      ${script.replace(/<\/script>/g, "\\u003c/script>")}
       })();
 
       </script>
