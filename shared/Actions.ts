@@ -17,7 +17,7 @@ export interface RawResponseMessage<
   K extends keyof A,
 > {
   id: number;
-  response: (ReturnType<A[K]> extends Promise<infer T> ? T : never) | undefined;
+  response?: ReturnType<A[K]> extends Promise<infer T> ? T : never;
   error?: {
     message: string;
     stack?: string;
@@ -55,7 +55,7 @@ export class Actions<
   async receiveMessage<K extends keyof L, J extends keyof R>(
     message: RawActionMessage<L, K> | RawResponseMessage<R, J>,
   ): Promise<void> {
-    if ("response" in message) {
+    if (!("key" in message)) {
       let callback = this.responseQueue[message.id];
       if (callback != null) callback(message);
     } else {
@@ -93,7 +93,10 @@ export class Actions<
       (resolve) => {
         let id = this.id++;
 
-        this.responseQueue[id] = resolve;
+        this.responseQueue[id] = (rawResponse) => {
+          delete this.responseQueue[id];
+          resolve(rawResponse);
+        };
 
         this.sendMessage({
           id,

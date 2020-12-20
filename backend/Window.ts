@@ -23,11 +23,7 @@ export class Window<
 > {
   private actions: Actions<L & WindowBackendActions, R & WindowFrontendActions>;
   webview: Webview;
-  state: Readonly<WindowState> = {
-    title: "",
-    visible: false,
-    fullScreen: false,
-  };
+  state: Readonly<WindowState>;
 
   setState(state: Partial<WindowState>) {
     this.state = { ...this.state, ...state };
@@ -48,7 +44,6 @@ export class Window<
   constructor(
     scriptUrl: URL,
     localActions: L,
-    options: Partial<WindowOptions>,
   ) {
     this.actions = new Actions(
       {
@@ -63,8 +58,8 @@ export class Window<
     );
 
     this.state = {
-      title: options.title ?? "",
-      visible: options.visible ?? false,
+      title: "",
+      visible: false,
       fullScreen: false,
     };
 
@@ -100,13 +95,14 @@ export class Window<
     );
 
     this.webview = new Webview({
-      title: "",
-      visible: false,
-      ...options,
+      title: this.state.title,
+      visible: this.state.visible,
       url: `data:text/html,${encodeURIComponent(html(false))}`,
     });
+  }
 
-    this.webview.run((evt) => {
+  run(): Promise<void> {
+    return this.webview.run((evt) => {
       this.actions.receiveMessage(JSON.parse(evt));
     });
   }

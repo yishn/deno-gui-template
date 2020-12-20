@@ -33,18 +33,29 @@ export class Window<L extends ActionsTemplate, R extends ActionsTemplate>
     );
   }
 
-  componentDidUpdate(prevProps: WindowProps<L>) {
+  componentDidMount() {
     this.actions.doRemoteAction("setState", ...[{
+      title: this.props.title,
+      visible: this.props.visible,
+      fullScreen: this.props.fullScreen,
+    }] as never);
+  }
+
+  componentDidUpdate(prevProps: WindowProps<L>) {
+    let windowStateChange = {
       title: prevProps.title !== this.props.title
         ? this.props.title
         : undefined,
-      visible: prevProps.visible !== this.props.visible
-        ? this.props.visible
-        : undefined,
+      visible: prevProps.visible !== this.props.visible ? this.props.visible
+      : undefined,
       fullScreen: prevProps.fullScreen !== this.props.fullScreen
         ? this.props.fullScreen
         : undefined,
-    }] as never);
+    };
+
+    if (Object.values(windowStateChange).some((value) => value !== undefined)) {
+      this.actions.doRemoteAction("setState", ...[windowStateChange] as never);
+    }
   }
 
   render() {

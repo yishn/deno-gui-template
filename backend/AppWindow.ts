@@ -13,9 +13,6 @@ export class AppWindow
       {
         getProductName: async () => pkg.productName,
       },
-      {
-        title: pkg.productName,
-      },
     );
   }
 }
