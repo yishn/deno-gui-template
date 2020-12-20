@@ -48,9 +48,8 @@ export class Window<
     this.actions = new Actions(
       {
         ...localActions,
-        setState: async (state: Partial<WindowState>) => {
-          this.setState(state);
-        },
+        print: async (obj: object) => console.log(obj),
+        setState: async (state: Partial<WindowState>) => this.setState(state),
       },
       (data) => {
         this.webview.eval(`window.__actions.receiveMessage(${data});`);

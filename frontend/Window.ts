@@ -10,7 +10,7 @@ declare namespace external {
 }
 
 declare namespace window {
-  let __actions: Actions<ActionsTemplate, ActionsTemplate>;
+  let __actions: Actions<ActionsTemplate, ActionsTemplate> | undefined;
 }
 
 export interface WindowProps<L extends ActionsTemplate> {
@@ -39,6 +39,10 @@ export class Window<L extends ActionsTemplate, R extends ActionsTemplate>
       visible: this.props.visible,
       fullScreen: this.props.fullScreen,
     }] as never);
+  }
+
+  componentWillUnmount() {
+    window.__actions = undefined;
   }
 
   componentDidUpdate(prevProps: WindowProps<L>) {
