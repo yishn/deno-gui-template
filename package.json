@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "deno fmt",
-    "build": "deno bundle --unstable --config ./tsconfig.json ./frontend/AppWindow.tsx ./build/AppWindow.js",
+    "build": "deno bundle --unstable ./backend/main.ts ./build/main.js && deno bundle --unstable --config ./tsconfig.frontend.json ./frontend/AppWindow.tsx ./build/AppWindow.js",
     "start": "deno run -A --unstable --no-check ./backend/main.ts"
   },
   "repository": {
