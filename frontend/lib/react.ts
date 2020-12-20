@@ -1,9 +1,11 @@
+// @deno-types="https://cdn.esm.sh/v11/@types/react@17.0.0/index.d.ts"
 import React, {
   Component,
   createElement,
-} from "https://esm.sh/react@17.0.1";
+} from "https://cdn.esm.sh/v11/react@17.0.1/esnext/react.development.js";
 
-import { render } from "https://esm.sh/react-dom@17.0.1";
+// @deno-types="https://cdn.esm.sh/v11/@types/react-dom@17.0.0/index.d.ts"
+import { render } from "https://cdn.esm.sh/v11/react-dom@17.0.1/esnext/react-dom.development.js";
 
 export default React;
 export { Component, createElement, render };
