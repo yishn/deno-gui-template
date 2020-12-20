@@ -1,9 +1,9 @@
 import React, {
   Component,
   createElement,
-} from "https://cdn.skypack.dev/react@^17.0.1?dts";
+} from "https://esm.sh/react@17.0.1";
 
-import { render } from "https://cdn.skypack.dev/react-dom@^17.0.1?dts";
+import { render } from "https://esm.sh/react-dom@17.0.1";
 
 export default React;
 export { Component, createElement, render };
