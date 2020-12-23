@@ -55,7 +55,7 @@ export class Window<
     this.actions = new Actions(
       {
         ...localActions,
-        print: async (obj: object) => console.log(obj),
+        print: async (obj: unknown) => console.log(obj),
         setState: async (state: Partial<WindowState>) => this.setState(state),
       },
       (data) => {

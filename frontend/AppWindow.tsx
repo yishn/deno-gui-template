@@ -11,8 +11,7 @@ export interface AppWindowState {
   productName: string;
 }
 
-export class AppWindow extends Component<AppWindowProps, AppWindowState>
-  implements AppWindowFrontendActions {
+export class AppWindow extends Component<AppWindowProps, AppWindowState> {
   windowRef: RefObject<
     Window<AppWindowFrontendActions, AppWindowBackendActions>
   >;
@@ -43,11 +42,12 @@ export class AppWindow extends Component<AppWindowProps, AppWindowState>
     return (
       <Window<AppWindowFrontendActions, AppWindowBackendActions>
         ref={this.windowRef}
-        actions={this}
+        actions={{}}
         title={this.state.productName}
         visible
       >
         <h1>Hello World!</h1>
+        <p>{(window as any).navigator.userAgent}</p>
       </Window>
     );
   }

@@ -11,6 +11,8 @@ declare namespace external {
 
 declare namespace window {
   let __actions: Actions<ActionsTemplate, ActionsTemplate> | undefined;
+
+  function addEventListener(name: string, callback: (evt: any) => any): void;
 }
 
 export interface WindowProps<L extends ActionsTemplate> {
@@ -24,6 +26,10 @@ export class Window<L extends ActionsTemplate, R extends ActionsTemplate>
   extends Component<WindowProps<L>> {
   actions: Actions<L & WindowFrontendActions, R & WindowBackendActions>;
 
+  get windowActions(): Actions<WindowFrontendActions, WindowBackendActions> {
+    return this.actions;
+  }
+
   constructor(props: WindowProps<L>) {
     super(props);
 
@@ -34,15 +40,27 @@ export class Window<L extends ActionsTemplate, R extends ActionsTemplate>
   }
 
   componentDidMount() {
-    this.actions.doRemoteAction("setState", ...[{
+    this.windowActions.doRemoteAction("setState", {
       title: this.props.title,
       visible: this.props.visible,
       fullScreen: this.props.fullScreen,
-    }] as never);
-  }
+    });
 
-  componentWillUnmount() {
-    window.__actions = undefined;
+    window.addEventListener("error", (evt) => {
+      if (evt.error == null) return;
+
+      this.windowActions.doRemoteAction(
+        "print",
+        `Frontend Uncaught Error: ${evt.error.stack || evt.error}`,
+      );
+    });
+
+    window.addEventListener("unhandledrejection", (evt) => {
+      this.windowActions.doRemoteAction(
+        "print",
+        `Frontend Unhandled Rejection: ${evt.reason.stack || evt.reason}`,
+      );
+    });
   }
 
   componentDidUpdate(prevProps: WindowProps<L>) {
@@ -58,7 +76,7 @@ export class Window<L extends ActionsTemplate, R extends ActionsTemplate>
     };
 
     if (Object.values(windowStateChange).some((value) => value !== undefined)) {
-      this.actions.doRemoteAction("setState", ...[windowStateChange] as never);
+      this.windowActions.doRemoteAction("setState", windowStateChange);
     }
   }
 
