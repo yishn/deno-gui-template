@@ -9,7 +9,13 @@ import type {
   WindowFrontendActions,
 } from "../shared/WindowActions.ts";
 
-export type WindowOptions = Omit<WebviewParams, "url">;
+export type WindowOptions = Omit<
+  WebviewParams,
+  | "url"
+  | "title"
+  | "visible"
+  | "fullScreen"
+>;
 
 export interface WindowState {
   title: string;
@@ -44,6 +50,7 @@ export class Window<
   constructor(
     scriptUrl: URL,
     localActions: L,
+    options?: Partial<WindowOptions>,
   ) {
     this.actions = new Actions(
       {
@@ -96,6 +103,7 @@ export class Window<
     this.webview = new Webview({
       title: this.state.title,
       visible: this.state.visible,
+      ...options,
       url: `data:text/html,${encodeURIComponent(html(false))}`,
     });
   }

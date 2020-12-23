@@ -9,10 +9,14 @@ export class AppWindow
   extends Window<AppWindowBackendActions, AppWindowFrontendActions> {
   constructor() {
     super(
-      new URL("../build/AppWindow.js", import.meta.url),
+      new URL("../build/AppWindow.main.js", import.meta.url),
       {
         getProductName: async () => pkg.productName,
       },
+      {
+        width: 1000,
+        height: 600,
+      }
     );
   }
 }

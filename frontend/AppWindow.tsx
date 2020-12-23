@@ -1,13 +1,9 @@
-import React, { Component, createRef, RefObject, render } from "./lib/react.ts";
+import React, { Component, createRef, RefObject } from "./lib/react.ts";
 import {
   AppWindowBackendActions,
   AppWindowFrontendActions,
 } from "../shared/AppWindowActions.ts";
 import { Window } from "./Window.ts";
-
-declare namespace document {
-  function getElementById(id: string): any;
-}
 
 export interface AppWindowProps {}
 
@@ -15,7 +11,8 @@ export interface AppWindowState {
   productName: string;
 }
 
-class AppWindow extends Component<AppWindowProps, AppWindowState> {
+export class AppWindow extends Component<AppWindowProps, AppWindowState>
+  implements AppWindowFrontendActions {
   windowRef: RefObject<
     Window<AppWindowFrontendActions, AppWindowBackendActions>
   >;
@@ -46,7 +43,7 @@ class AppWindow extends Component<AppWindowProps, AppWindowState> {
     return (
       <Window<AppWindowFrontendActions, AppWindowBackendActions>
         ref={this.windowRef}
-        actions={{}}
+        actions={this}
         title={this.state.productName}
         visible
       >
@@ -55,5 +52,3 @@ class AppWindow extends Component<AppWindowProps, AppWindowState> {
     );
   }
 }
-
-render(<AppWindow />, document.getElementById("root"));
